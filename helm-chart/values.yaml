@@ -1,0 +1,69 @@
+# Default values for job.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  environment: []
+
+## Job image
+image:
+  repository: marty91cz
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "main"
+
+imagePullSecrets: []
+# nameOverride: ""
+# By default, fullname uses '{{ .Release.Name }}-{{ .Chart.Name }}'. This
+# overrides that and uses the given string instead.
+# fullnameOverride: ""
+# This adds a prefix
+# fullnamePrefix: "pre-"
+# This appends a suffix
+# fullnameSuffix: "-suf"
+
+## Job configurations
+backoffLimit: 2
+restartPolicy: Never
+
+annotations: {}
+
+#command: ["/bin/sh","-c"]
+#args: ["echo 'consuming a message'; sleep 5"]
+
+#volumeMounts:
+
+# environment:
+#   - name: TEST_FOLDER_PATH
+#     value: value1
+
+## Persist data to a persistent volume
+persistence:
+  enabled: true
+  existingClaim: "nfs-server"
+  ## database data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  #storageClass: "longhorn"
+  #accessMode: ReadWriteOnce
+  #size: 5Gi
+  #annotations: {}
+  #subPath: ""
+
+## define resources
+#resources:
+#  limits:
+#    cpu: 2
+#    memory: 2000Mi
+#  requests:
+#    cpu: 500m
+#    memory: 500Mi
+
+securityContext:
+  runAsUser: 
+  runAsGroup:
+  fsGroup:
