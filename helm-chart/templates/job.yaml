@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ .Chart.Name }}
 spec:
   template:
     spec:
@@ -20,9 +20,9 @@ spec:
         {{- end }}
     {{- end }}
       containers:
-      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      - image: "{{ .Values.image.repository }}/{{ .Chart.Name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.image.imagePullPolicy }}
-        name: {{ template "fullname" . }}
+        name: {{ .Chart.Name }}
         env:
         - name: TEST_FOLDER_PATH
           value: /nfs-test-data-mount
@@ -40,19 +40,17 @@ spec:
         resources:
 {{ toYaml . | indent 10 }}
         {{- end }}
-        {{- with .Values.volumeMounts }}
         volumeMounts:
         - name: data
           mountPath: /nfs-test-data-mount
           {{- if .Values.persistence.subPath }}
           subPath: {{ .Values.persistence.subPath }}
           {{- end }}
-{{ toYaml . | indent 8 }}
-        {{- end }}      
+      volumes:
       - name: data
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
-          claimName: {{ .Values.persistence.existingClaim | default (include "fullname" .) }}
+          claimName: {{ .Values.persistence.existingClaim | default (.Chart.Name) }}
       {{- else }}
         emptyDir: {}
       {{- end -}}

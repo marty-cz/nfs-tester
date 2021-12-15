@@ -31,8 +31,6 @@ annotations: {}
 #command: ["/bin/sh","-c"]
 #args: ["echo 'consuming a message'; sleep 5"]
 
-#volumeMounts:
-
 # environment:
 #   - name: TEST_FOLDER_PATH
 #     value: value1
@@ -40,7 +38,7 @@ annotations: {}
 ## Persist data to a persistent volume
 persistence:
   enabled: true
-  existingClaim: "nfs-server"
+  #existingClaim: "nfs-server"
   ## database data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
   ## If set to "-", storageClassName: "", which disables dynamic provisioning
@@ -48,9 +46,9 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  #storageClass: "longhorn"
-  #accessMode: ReadWriteOnce
-  #size: 5Gi
+  storageClass: "nfs-client"
+  accessMode: ReadWriteOnce
+  size: 5Gi
   #annotations: {}
   #subPath: ""
 
