@@ -48,7 +48,7 @@ persistence:
   ##
   storageClass: "nfs-client"
   accessMode: ReadWriteOnce
-  size: 5Gi
+  size: 2Gi
   #annotations: {}
   #subPath: ""
 
