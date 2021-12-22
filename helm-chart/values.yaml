@@ -10,7 +10,7 @@ image:
   repository: marty91cz
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "main"
+  tag: "dev-continues-test-via-helm-deployment"
 
 imagePullSecrets: []
 # nameOverride: ""
@@ -26,14 +26,29 @@ imagePullSecrets: []
 backoffLimit: 2
 restartPolicy: Never
 
-annotations: {}
+log:
+  enableCollecting: true
 
-#command: ["/bin/sh","-c"]
-#args: ["echo 'consuming a message'; sleep 5"]
+metrics:
+  port: 8080
+
+# at least one command has to be defined.
+# for every command a container is created within the pod
+commands:
+  - cmd: "./nfs-tester"
+    args: "-benchmark=iops"
+  - cmd: "./nfs-tester"
+    args: "-benchmark=latency"
+  - cmd: "./nfs-tester"
+    args: "-benchmark=throughput"
 
 # environment:
-#   - name: TEST_FOLDER_PATH
-#     value: value1
+#   - name: <NAME>
+#     value: <VALUE>
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+
 
 ## Persist data to a persistent volume
 persistence:
@@ -48,7 +63,7 @@ persistence:
   ##
   storageClass: "nfs-client"
   accessMode: ReadWriteOnce
-  size: 2Gi
+  size: 10Gi
   #annotations: {}
   #subPath: ""
 
@@ -62,6 +77,6 @@ persistence:
 #    memory: 500Mi
 
 securityContext:
-  runAsUser: 
+  runAsUser:
   runAsGroup:
   fsGroup:
