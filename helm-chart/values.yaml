@@ -10,7 +10,7 @@ image:
   repository: marty91cz
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "dev-continues-test-via-helm-deployment"
+  tag: "main"
 
 imagePullSecrets: []
 # nameOverride: ""
@@ -21,10 +21,6 @@ imagePullSecrets: []
 # fullnamePrefix: "pre-"
 # This appends a suffix
 # fullnameSuffix: "-suf"
-
-## Job configurations
-backoffLimit: 2
-restartPolicy: Never
 
 log:
   enableCollecting: true
