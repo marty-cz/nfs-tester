@@ -9,7 +9,7 @@ on:
   schedule:
     - cron: '33 1 * * *'
   push:
-    branches: [ main ]
+    branches: [ main, dev/continues-test-via-helm-deployment ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
