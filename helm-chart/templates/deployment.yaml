@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "my-chart.fullname" . }}
+  labels:
+    {{- include "my-chart.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "my-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}      
+      labels:
+        {{- include "my-chart.selectorLabels" . | nindent 8 }}
+        {{- if .Values.log.enableCollecting }}
+        log.collecting: enabled
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.securityContext.runAsUser }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        {{- if .Values.securityContext.runAsGroup }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        {{- end }}
+        {{- if .Values.securityContext.fsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        {{- end }}
+      {{- end }}
+      containers:
+      {{- range $index, $command := .Values.commands }}
+        - name: {{ $.Chart.Name}}-{{ $index }}
+          image: "{{ $.Values.image.repository }}/{{ $.Chart.Name }}:{{ $.Values.image.tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          ports:
+            - name: metrics
+              containerPort: {{ add $.Values.metrics.port $index }}
+              protocol: TCP
+          command:
+            - {{ $command.cmd }}
+          args:
+            - {{ $command.args }}
+          env:
+            - name: TEST_FOLDER_PATH
+              value: "/nfs-test-data-mount"
+            - name: METRICS_PORT
+              value: {{ (add $.Values.metrics.port $index) | quote }}
+            {{- range concat ($.Values.global.environment) ($.Values.environment | default list)}}
+            - name: {{ .name | quote}}
+              value: {{ .value | quote }}
+            {{- end }}
+          {{- with $.Values.resources }}
+          resources:
+            {{ toYaml . | indent 12 }}
+          {{- end }}
+          volumeMounts:
+          - name: data
+            mountPath: /nfs-test-data-mount
+            {{- if $.Values.persistence.subPath }}
+            subPath: {{ $.Values.persistence.subPath }}
+            {{- end }}
+      {{- end }}
+      volumes:
+        - name: data
+        {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "my-chart.fullname" .) }}
+        {{- else }}
+          emptyDir: {}
+        {{- end -}}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
